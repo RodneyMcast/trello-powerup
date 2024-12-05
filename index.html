@@ -1,9 +1,139 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Trello Power-Up</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drink Volume Dashboard with Trello</title>
+    <script type="module">
+        // Firebase SDK imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDujWYR4wPViOvGBUZDjHgpDbCZEkk9S2U",
+            authDomain: "whisky-5295a.firebaseapp.com",
+            databaseURL: "https://whisky-5295a-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "whisky-5295a",
+            storageBucket: "whisky-5295a.appspot.com",
+            messagingSenderId: "155703083316",
+            appId: "1:155703083316:web:93de951ada87037109e561",
+            measurementId: "G-M1KWZF7BNK"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Function to add a card to Trello
+        async function addToTrello(cardName) {
+            const apiKey = "d94bc000a5770df2df9fc923e50c2360";
+            const apiToken = "YOUR_API_TOKEN"; // Replace with your generated Trello API token
+            const listId = "YOUR_LIST_ID"; // Replace with the Trello list ID where you want to add cards
+
+            console.log(`Adding card to Trello: ${cardName}`);
+
+            try {
+                const response = await fetch(`https://api.trello.com/1/cards?key=${apiKey}&token=${apiToken}&idList=${listId}&name=${encodeURIComponent(cardName)}`, {
+                    method: "POST"
+                });
+
+                const responseData = await response.json();
+
+                if (response.ok) {
+                    console.log("Card added successfully:", responseData);
+                    alert(`Card "${cardName}" successfully added to Trello!`);
+                } else {
+                    console.error("Failed to add card:", responseData);
+                    alert(`Failed to add card. Status: ${responseData.message}`);
+                }
+            } catch (error) {
+                console.error("Error adding card to Trello:", error);
+                alert("An error occurred while adding the card.");
+            }
+        }
+
+        // Fetch Current Volumes and Render Dashboard
+        document.addEventListener("DOMContentLoaded", () => {
+            const currentVolumesUl = document.getElementById("current-volumes");
+            const historyDiv = document.getElementById("history");
+
+            const drinksRef = ref(db, "drinks");
+
+            // Listen for real-time updates from Firebase
+            onValue(drinksRef, (snapshot) => {
+                const drinks = snapshot.val();
+                currentVolumesUl.innerHTML = ""; // Clear existing content
+                historyDiv.innerHTML = ""; // Clear history content
+
+                for (const drink in drinks) {
+                    const data = drinks[drink];
+
+                    // Add current volume to the current volumes list
+                    currentVolumesUl.innerHTML += `
+                        <li>
+                            <strong>${drink}</strong>: ${data.current_volume} L
+                            <button onclick="addToTrello('${drink}')">Add to Trello</button>
+                        </li>
+                    `;
+
+                    // Add volume history for each drink
+                    let historyHtml = `<h3>${drink}</h3><ul>`;
+                    for (const timestamp in data.history) {
+                        historyHtml += `<li>${timestamp}: ${data.history[timestamp]} L</li>`;
+                    }
+                    historyHtml += "</ul>";
+                    historyDiv.innerHTML += historyHtml;
+                }
+            });
+        });
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 5px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        button {
+            margin-left: 10px;
+            padding: 5px 10px;
+            background-color: #0079bf;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #005a9e;
+        }
+    </style>
 </head>
 <body>
-    <h1>This is your Trello Power-Up!</h1>
+    <h1>Drink Volume Dashboard</h1>
+
+    <!-- Current Volumes Section -->
+    <div>
+        <h2>Current Volumes</h2>
+        <ul id="current-volumes"></ul>
+    </div>
+
+    <!-- Volume History Section -->
+    <div>
+        <h2>Volume History</h2>
+        <div id="history"></div>
+    </div>
 </body>
 </html>
