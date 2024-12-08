@@ -54,8 +54,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     onValue(drinksRef, (snapshot) => {
         const drinks = snapshot.val();
-        currentVolumesUl.innerHTML = ""; 
-        historyDiv.innerHTML = ""; 
+        currentVolumesUl.innerHTML = "";
+        historyDiv.innerHTML = "";
 
         for (const drink in drinks) {
             const data = drinks[drink];
