@@ -4,7 +4,7 @@ import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.
 
 // Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyDujWYR4wPViOvGBUZDjHgpDbCZEkk9S2U",
+    apiKey: "REDACTED",
     authDomain: "whisky-5295a.firebaseapp.com",
     databaseURL: "https://whisky-5295a-default-rtdb.europe-west1.firebasedatabase.app",
     projectId: "whisky-5295a",
